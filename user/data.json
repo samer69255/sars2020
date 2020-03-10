@@ -1,0 +1,26 @@
+{
+    "url": "",
+    "token": "1012515848:AAHAvFPMjvHBw75kg935N0fH9rdkGk6OGro",
+    "username": "swsam",
+    "admin": "swsam",
+    "Start": false,
+    "text": "",
+    "time": 360,
+    "times": "2",
+    "user": {
+        "email": "faezeh.doltyari.7676@gmail.com",
+        "pass": "Samer@99"
+    },
+    "report": {
+        "posts": [],
+        "len": 0,
+        "start": "",
+        "errors": 0
+    },
+    "result": 1583850628605,
+    "domain": "hotmail.com",
+    "run": 0,
+    "i": 0,
+    "len": 0,
+    "cmd": ""
+}
