@@ -506,6 +506,7 @@ bot.command("login", async (ctx) => {
   }
   else {
     if (e) {
+	console.log(e);
       var code = e.toString().match(/StatusCodeError: ([0-9]+)/);
       if (code === undefined) {ctx.reply(`حدث خطأ غير معروف
       للمساعدة راسل المطور @swsam
