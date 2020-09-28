@@ -17,10 +17,14 @@
         "start": "",
         "errors": 0
     },
-    "result": 1601225945578,
-    "domain": "hotmail.com",
+    "result": 1601323969265,
+    "domain": "gmail.com",
     "run": 0,
     "i": 0,
     "len": 0,
-    "cmd": ""
+    "cmd": "",
+    "user_f": 0,
+    "user_t": 0,
+    "user_s": 0,
+    "user_len": 24
 }

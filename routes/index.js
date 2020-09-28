@@ -139,7 +139,12 @@ bot.hears(/\/getstatus|الحالة/, ctx => {
   else if (Config.run == 1) ctx.reply(`الحالة: جاري البحث عن نتائج`);
   else if (Config.run == 2) ctx.reply(`جاري الفحص
   اكتمل ${Config.i} من ${Config.len}`);
-  else if (Config.run == 3) ctx.reply("جاري تصيد حسابات متابعين");
+  //else if (Config.run == 3) ctx.reply("جاري تصيد حسابات متابعين");
+  else if (Config.run == 3) {
+    ctx.reply(`جاري تطابق الحسابات
+    
+    تم اكمال ${Config.user_s} من ${Config.user_len}`);
+  }
 });
 
 
@@ -272,7 +277,8 @@ bot.hears(/بحث/, async (ctx) => {
         
       });
       }
-    
+
+    res = emailF(res);
     console.log(n2);
     console.log('serach finish');
     Config.run = 0;
@@ -283,7 +289,7 @@ bot.hears(/بحث/, async (ctx) => {
 });
 
 // *********** فحص المتاحات *********************
-bot.hears(/فحص|\/check/, async ({reply}) => {
+bot.hears(/فحص البريد|\/check/, async ({reply}) => {
   if (isfile(`./results/${Config.result}.json`)) {
     Config.len = Config.i = 0;
     console.log("started checking");
@@ -329,6 +335,80 @@ bot.hears(/فحص|\/check/, async ({reply}) => {
 });
 
 
+// *********** فحص الحساب *********************
+bot.hears(/مطابقة البريد|\/verify/, async ({reply}) => {
+  if (isfile(`./results/${Config.result}_checked.json`)) {
+    console.log("Started User Checking");
+    var users_string = fs.readFileSync(`./results/${Config.result}_checked.json`).toString();
+    Config.run = 3;
+
+    reply(`تجري الان عملية المطابقة
+    اضغط /getstatus لعرض الحالة`);
+
+    var users = JSON.parse(users_string);
+
+    if (isfile(`./results/${Config.result}_verified.json`)) {
+      var s = JSON.parse( fs.readFileSync(`./results/${Config.result}_verified.json`, 'UTF-8') );
+    } else s =[];
+
+    if (Config.user_f == null) Config.user_f = 0;
+    if (Config.user_t == null) Config.user_t = 0;
+    if (Config.user_s == null) Config.user_s = 0;
+    Config.user_len = users.length;
+    saveConfig();
+
+
+    for (var u=Config.user_s; u<users.length; u++) {
+      if (u > 0) await sleep(50);
+      var user = users[u];
+      var verify = await UserV(user.email);
+
+      if (verify == true) s.push(user);
+
+      else if (verify == false) {
+        Config.user_f++;
+        saveConfig();
+      }
+    
+      else {
+
+        // IP Adress Blocked
+        fs.writeFileSync(`./results/${Config.result}_verified.json`, JSON.stringify(s));
+        reply(`فشلت العملية!!
+
+        نجح فحص ${Config.user_s} من ${users.length}
+        
+        تم حظر البوت، يمكن الاستمرار بعد عدة دقائق
+
+        اكتب /verify لاستئناف العملية
+        `);
+
+        Config.run = 0;
+        saveConfig();
+
+        return;
+      }
+      Config.user_s++;
+      saveConfig();
+    }
+    if (s.length > 0)
+    fs.writeFileSync(`./results/${Config.result}_verified.json`, JSON.stringify(s));
+    fs.unlinkSync(`./results/${Config.result}_checked.json`);
+    var re = `تم الانتهاء من التطابق
+
+    النتائج:
+
+   عدد الحسابات المتاحة: ${s.length}
+    عدد الحسابات الغير متاحة: ${Config.user_f}`;
+    console.log("checking finish");
+    reply(re);
+    Config.run = 0;
+    Config.user_f = Config.user_s = Config.user_t = 0;
+    saveConfig();
+    //console.log(s);
+  }
+  else reply("لا يوجد شي لفحصه");
+});
 
 
 // *********** سحب متابعين *********************
@@ -421,13 +501,16 @@ bot.hears(/سحب متابعين|\/following/, async ({reply}) => {
 // --------------- سحب النتائج ----------------------
 
 bot.hears(/سحب المتاحات مع اليوزر|\/cloneall/, (ctx) => {
-  if (isfile(`./results/${Config.result}_checked.json`)) {
-    var txt = JSON.parse( fs.readFileSync(`./results/${Config.result}_checked.json`) )
+   var path;
+  if (isfile(`./results/${Config.result}_verified.json`)) path = `./results/${Config.result}_verified.json`;
+  else if (isfile(`./results/${Config.result}_checked.json`)) path = `./results/${Config.result}_checked.json`;
+  if (path) {
+    var txt = JSON.parse( fs.readFileSync(path) )
     .map( key => {
       return key.email + "\n" + key.username;
     })
     .join("\n\n");
-    var filename = `./results/temp/${Config.result}_checked.txt`;
+    var filename = `${path}.txt`;
     fs.writeFileSync(filename, txt);
     ctx.replyWithDocument({source: fs.readFileSync(filename), filename: "INSTAXX.txt"});
     fs.unlinkSync(filename);
@@ -438,11 +521,15 @@ bot.hears(/سحب المتاحات مع اليوزر|\/cloneall/, (ctx) => {
 });
 
 bot.hears(/سحب المتاحات|\/clone/, (ctx) => {
-  if (isfile(`./results/${Config.result}_checked.json`)) {
-    var txt = JSON.parse( fs.readFileSync(`./results/${Config.result}_checked.json`) )
+  var path;
+  if (isfile(`./results/${Config.result}_verified.json`)) path = `./results/${Config.result}_verified.json`;
+  else if (isfile(`./results/${Config.result}_checked.json`)) path = `./results/${Config.result}_checked.json`;
+  
+  if (path) {
+    var txt = JSON.parse( fs.readFileSync(path) )
     .map( key => key.email)
     .join("\n");
-    var filename = `./results/temp/${Config.result}_checked.txt`;
+    var filename = `${path}.txt`;
     fs.writeFileSync(filename, txt);
     ctx.replyWithDocument({source: fs.readFileSync(filename), filename: "INSTAXX.txt"});
     //fs.unlinkSync(filename);
@@ -454,11 +541,14 @@ bot.hears(/سحب المتاحات|\/clone/, (ctx) => {
 
 bot.hears(/سحب اليوزرات|\/cloneusernames/, (ctx) => {
   console.log("CMD => clone usernames");
-  if (isfile(`./results/${Config.result}_checked.json`)) {
-    var txt = JSON.parse( fs.readFileSync(`./results/${Config.result}_checked.json`) )
+   var path;
+  if (isfile(`./results/${Config.result}_verified.json`)) path = `./results/${Config.result}_verified.json`;
+  else if (isfile(`./results/${Config.result}_checked.json`)) path = `./results/${Config.result}_checked.json`;
+  if (path) {
+    var txt = JSON.parse( fs.readFileSync(path) )
     .map( key => key.username)
     .join("\n");
-    var filename = `./results/temp/${Config.result}_checked.txt`;
+    var filename = `${path}.txt`;
     fs.writeFileSync(filename, txt);
     ctx.replyWithDocument({source: fs.readFileSync(filename), filename: "INSTAXX.txt"});
     //fs.unlinkSync(filename);
@@ -619,6 +709,7 @@ async function search(name) {
   }
 
  
+ 
 
   async function Search() {
     var list = fs.readFileSync('./list.txt').toString()
@@ -639,6 +730,28 @@ async function search(name) {
     }
     return true;
   }
+
+
+
+
+   function emailF(list) {
+    
+    console.log(list);
+    return list
+    .filter(key => validateEmail(key.email))
+    .filter(k => {
+      if (/@gmail/.test(k.email)) {
+        return /[a-zA-Z0-9.]{6,}@gmail.com$/.test(k.email);
+      }
+      return true;
+    });
+  }
+
+  function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
 
     function makeid(length) {
    var result           = '';
@@ -662,6 +775,19 @@ function isfile(path) {
 return res;
 }
 
+async function UserV(username) {
+  var cx = new Instagram({});
+  var error = "";
+  console.log(`User Verifing ${username}`);
+  var data = await cx.login({username:username, password:'pwd'}).catch(e => error = e);
+  if (error) {
+    console.log(`${username}=> error`);
+    return 'error';
+  }
+  console.log(`${username}=> ${data.user}`)
+  return data.user;
+  console.log(data);
+}
 
 /* Skip Automatic Stop the Server */
 /* Some free hosting stops the server  if it is not active during a short period like "reple.it" */

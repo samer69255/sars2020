@@ -52,6 +52,7 @@ function checkH(email) {
     return new Promise(resolve => {
           var data = {signInName: email,uaid: ss.uaid,includeSuggestions:true,uiflvr: ss.uiflvr,scid: ss.scid,hpgid: ss.hpgid}
    // console.log(data);
+   
     var options = {
     url:'https://signup.live.com/API/CheckAvailableSigninNames?lic=1',
     json:(data),
