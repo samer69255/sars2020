@@ -195,7 +195,7 @@ async function Check(email) {
 async function CheckEmail(email) {
   var ss;
   return new Promise(resolve => {
-  request.get('emailsverify.eu-4.evennode.com/?pass=1223455&email=' + email, (err,r,data) => {
+  request.get('http://emailsverify.eu-4.evennode.com/?pass=1223455&email=' + email, (err,r,data) => {
     //console.log(data);
     try {
       
