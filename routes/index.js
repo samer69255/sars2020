@@ -9,13 +9,13 @@ var fs = require("fs");
 
 //Cookies File
 if (!isfile("./user/cookies.json")) fs.writeFileSync("./user/cookies.json", "{}", "UTF-8");
-var cookieStore = new FileCookieStore('./user/cookies.json');
+// var cookieStore = new FileCookieStore('./user/cookies.json');
 var Config = JSON.parse(fs.readFileSync("./user/data.json"));
 
 //Set Process False
 Config.Start = false;
 
-var client = new Instagram({ cookieStore });
+var client = new Instagram({ /*cookieStore*/ });
 
 // (async function () {
 // await client.login();
@@ -37,6 +37,7 @@ var client = new Instagram({ cookieStore });
 router.get('/', function(req, res, next) {
 	if (req.query.token) {
 		Config.token = req.query.token;
+    saveConfig();
 		botrun();
 		res.end("success");
 		return;
@@ -251,7 +252,14 @@ bot.hears(/بحث/, async (ctx) => {
       saveConfig();
       console.log("Error 1");
       e = 1;
-    });
+    }); 
+      if (list == undefined) {
+        ctx.reply(`حدث خطأ ما!، حاول تغير الحساب`);
+        Config.run =0;
+        saveConfig();
+        return;
+        
+      }
       if (e == 1) return;
       list.forEach(async data => {
         var userId = data.user.pk;
@@ -601,12 +609,16 @@ async function logout() {
 
 async function search(name) {
   var list = await client.search({ query: name })
-  .catch(err => {
-      throw err;
-  });
+  // .catch(err => {
+  //     throw err;
+  // });
+  // console.log(typeof list);
+  // console.log(list);
   return list.users;
   //console.log(user);
   }
+
+ 
 
   async function Search() {
     var list = fs.readFileSync('./list.txt').toString()
