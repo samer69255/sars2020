@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Instagram = require('./instx.js');
 var request = require("request");
-const FileCookieStore = require('tough-cookie-filestore');
+const FileCookieStore = require('tough-cookie-filestore2');
 const Telegraf = require('telegraf');
 var {Check, InitY, InitH, reset} = require('../yaho/yaho');
 var fs = require("fs");
@@ -289,7 +289,7 @@ bot.hears(/بحث/, async (ctx) => {
 });
 
 // *********** فحص المتاحات *********************
-bot.hears(/فحص البريد|\/check/, async ({reply}) => {
+bot.hears(/(\/check|فحص)/, async ({reply}) => {
   if (isfile(`./results/${Config.result}.json`)) {
     Config.len = Config.i = 0;
     console.log("started checking");
@@ -336,7 +336,7 @@ bot.hears(/فحص البريد|\/check/, async ({reply}) => {
 
 
 // *********** فحص الحساب *********************
-bot.hears(/مطابقة البريد|\/verify/, async ({reply}) => {
+bot.hears(/(\/verify|مطابقة)/, async ({reply}) => {
   if (isfile(`./results/${Config.result}_checked.json`)) {
     console.log("Started User Checking");
     var users_string = fs.readFileSync(`./results/${Config.result}_checked.json`).toString();

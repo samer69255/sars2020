@@ -1,6 +1,6 @@
 {
     "url": "",
-    "token": "1396315334:AAH6OxhcmF6Zxrbf7X1rGo0Dk0zJT2PxFYU",
+    "token": "[YOUR_BOT_TOKEN]",
     "username": "swsam",
     "admin": "swsam",
     "Start": false,
@@ -8,8 +8,8 @@
     "time": 360,
     "times": "2",
     "user": {
-        "email": "smmro01",
-        "pass": "Samer@99"
+        "email": "",
+        "pass": ""
     },
     "report": {
         "posts": [],
@@ -17,8 +17,8 @@
         "start": "",
         "errors": 0
     },
-    "result": 1601323969265,
-    "domain": "gmail.com",
+    "result": 1601660488214,
+    "domain": "yahoo.com",
     "run": 0,
     "i": 0,
     "len": 0,
